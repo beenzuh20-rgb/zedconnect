@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.full_name or 'User' }}{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <a href="/chat/" class="back-link">← Back</a>
+        <h2>Chat with {{ other_user.full_name or 'Anonymous' }}</h2>
+    </div>
+    
+    <div class="messages-container">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+            <div class="message-content">
+                {{ message.content }}
+            </div>
+            <div class="message-time">
+                {{ message.created_at.strftime('%H:%M') }}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="no-messages">
+            <p>No messages yet. Say hello!</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <form action="/chat/send/{{ other_user.id }}" method="post" class="message-form">
+        <input type="text" name="content" placeholder="Type your message..." required autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+</div>
+{% endblock %}

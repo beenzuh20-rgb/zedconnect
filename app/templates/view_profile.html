@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ user.full_name or 'User Profile' }}{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h2>{{ user.full_name or 'Anonymous' }}</h2>
+    
+    <div class="profile-card">
+        <img src="{{ user.profile_picture_url or '/static/default_profile.png' }}" alt="Profile Picture" class="profile-pic-large">
+        
+        <div class="user-info">
+            <p class="age-gender">{{ user.age }} years old • {{ user.gender or 'Not specified' }}</p>
+            <p class="location">📍 {{ user.location or 'Zambia' }}</p>
+            <p class="bio">{{ user.bio or 'No bio yet' }}</p>
+        </div>
+        
+        <div class="user-actions" style="margin-top: 2rem;">
+            <form action="/matches/like/{{ user.id }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-like">❤️ Like</button>
+            </form>
+            <a href="/matches/browse" class="btn btn-secondary">Back to Browse</a>
+            <a href="/report/user/{{ user.id }}" class="btn-report">🚩 Report</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

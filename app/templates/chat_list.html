@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="chat-list-container">
+    <h2>Messages</h2>
+    
+    {% if matches %}
+    <div class="conversations-list">
+        {% for match in matches %}
+        <a href="/chat/with/{{ match.id }}" class="conversation-item">
+            <img src="{{ match.profile_picture_url or '/static/default_profile.png' }}" alt="Profile" class="conversation-pic">
+            <div class="conversation-info">
+                <h3>{{ match.full_name or 'Anonymous' }}</h3>
+                <p>Tap to start chatting</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-conversations">
+        <p>No conversations yet! Match with people to start chatting.</p>
+        <a href="/matches/browse" class="btn btn-primary">Find Matches</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

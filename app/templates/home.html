@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to ZedConnect</h1>
+    <p class="tagline">Connecting hearts - from Lusaka to Copperbelt and beyond!</p>
+    
+    <div class="hero-buttons">
+        <a href="/auth/register" class="btn btn-primary">Get Started</a>
+        <a href="/auth/login" class="btn btn-secondary">Login</a>
+    </div>
+    
+    <div class="features">
+        <div class="feature-card">
+            <h3>Find Local Matches</h3>
+            <p>Connect with people in your area - Lusaka, Copperbelt, and all provinces</p>
+        </div>
+        <div class="feature-card">
+            <h3>Simple Swiping</h3>
+            <p>Swipe right to like someone. It's a match when you both like each other!</p>
+        </div>
+        <div class="feature-card">
+            <h3>Chat & Connect</h3>
+            <p>Start chatting with your matches and build meaningful connections</p>
+        </div>
+    </div>
+</div>
+
+<div class="policies-section">
+    <h2 class="section-title">Our Policies & Guidelines</h2>
+    
+    <div class="policies-grid">
+        <div class="policy-card" id="terms">
+            <h3>Terms & Conditions</h3>
+            <p class="policy-date">Effective Date: July 5, 2025</p>
+            <ul>
+                <li>You must be at least 18 years old to use ZedConnect.</li>
+                <li>You agree to provide accurate information when creating your account.</li>
+                <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
+                <li>You agree not to harass, abuse, or harm other users.</li>
+                <li>No fake profiles, impersonation, or spam allowed.</li>
+            </ul>
+            <a href="/auth/terms" class="policy-link">Read Full Terms &rarr;</a>
+        </div>
+        
+        <div class="policy-card" id="privacy">
+            <h3>Privacy Policy</h3>
+            <p class="policy-date">Effective Date: July 5, 2025</p>
+            <ul>
+                <li>We collect profile details, photos, preferences, and messages.</li>
+                <li>Location data is used for matchmaking purposes only.</li>
+                <li>Payment information is processed securely by third-party providers.</li>
+                <li>Your data is protected and not shared without consent.</li>
+                <li>You may request access, correction, or deletion of your data.</li>
+            </ul>
+            <a href="/auth/terms#privacy" class="policy-link">Read Full Privacy Policy &rarr;</a>
+        </div>
+        
+        <div class="policy-card" id="cookie">
+            <h3>Cookie Policy</h3>
+            <p class="policy-date">Effective Date: July 5, 2025</p>
+            <ul>
+                <li>We use cookies to remember your preferences.</li>
+                <li>Cookies help us analyze site traffic and usage.</li>
+                <li>We deliver personalized ads through cookie technology.</li>
+                <li>You can manage cookie settings in your browser.</li>
+                <li>Disabling cookies may affect site functionality.</li>
+            </ul>
+            <a href="/auth/terms#cookie" class="policy-link">Read Full Cookie Policy &rarr;</a>
+        </div>
+        
+        <div class="policy-card" id="community">
+            <h3>Community Guidelines</h3>
+            <p class="policy-date">Effective Date: July 5, 2025</p>
+            <ul>
+                <li>Treat all members with kindness and respect.</li>
+                <li>No bullying, threats, or discriminatory behavior.</li>
+                <li>No explicit, offensive, or illegal content.</li>
+                <li>Fake profiles and impersonation are prohibited.</li>
+                <li>Use the "Report" feature to flag suspicious behavior.</li>
+            </ul>
+            <a href="/auth/terms#community" class="policy-link">Read Full Guidelines &rarr;</a>
+        </div>
+        
+        <div class="policy-card" id="safety">
+            <h3>Safety Guidelines</h3>
+            <p class="policy-date">Effective Date: July 5, 2025</p>
+            <ul>
+                <li>Do not share sensitive personal information too quickly.</li>
+                <li>Use in-app messaging before moving to external platforms.</li>
+                <li>Meet in public places for initial dates.</li>
+                <li>Inform a friend or family member of your plans.</li>
+                <li>Report suspicious behavior to our moderation team.</li>
+            </ul>
+            <a href="/auth/terms#safety" class="policy-link">Read Full Safety Guidelines &rarr;</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

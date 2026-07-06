@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My Matches{% endblock %}
+
+{% block content %}
+<div class="matches-container">
+    <h2>Your Matches</h2>
+    <p class="subtitle">People who liked you back!</p>
+    
+    {% if matches %}
+    <div class="matches-grid">
+        {% for match in matches %}
+        <div class="match-card">
+            <img src="{{ match.profile_picture_url or '/static/default_profile.png' }}" alt="Profile" class="match-pic">
+            <h3>{{ match.full_name or 'Anonymous' }}</h3>
+            <p>{{ match.age }} years old • {{ match.location or 'Zambia' }}</p>
+            <a href="/chat/with/{{ match.id }}" class="btn btn-primary">Send Message</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-matches">
+        <p>No matches yet! Keep browsing and liking people.</p>
+        <a href="/matches/browse" class="btn btn-primary">Browse Users</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

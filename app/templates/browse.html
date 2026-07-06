@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Browse Users{% endblock %}
+
+{% block content %}
+<div class="browse-container">
+    <h2>Find Your Match</h2>
+    <p class="subtitle">Discover people in Zambia</p>
+    
+    {% if users %}
+    <div class="user-cards">
+        {% for user in users %}
+        <div class="user-card">
+            <img src="{{ user.profile_picture_url or '/static/default_profile.png' }}" alt="Profile Picture" class="profile-pic">
+            <div class="user-info">
+                <h3>{{ user.full_name or 'Anonymous' }}</h3>
+                <p class="age-gender">{{ user.age }} years old • {{ user.gender or 'Not specified' }}</p>
+                <p class="location">📍 {{ user.location or 'Zambia' }}</p>
+                <p class="bio">{{ user.bio or 'No bio yet' }}</p>
+            </div>
+            <div class="user-actions">
+                <a href="/users/profile/{{ user.id }}" class="btn btn-secondary">View Profile</a>
+                <form action="/matches/like/{{ user.id }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-like">❤️ Like</button>
+                </form>
+                <a href="/report/user/{{ user.id }}" class="btn-report">🚩 Report</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-users">
+        <p>No more users to browse! Check back later or update your preferences.</p>
+        <a href="/matches/mutual" class="btn btn-primary">View Your Matches</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

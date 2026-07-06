@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Login to your ZedConnect account</p>
+    
+    <form action="/auth/login" method="post" class="auth-form">
+        <div class="form-group">
+            <label for="username">Email</label>
+            <input type="email" id="username" name="username" required placeholder="Enter your email">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Enter your password">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    
+    <p class="auth-link">Don't have an account? <a href="/auth/register">Register here</a></p>
+</div>
+{% endblock %}
