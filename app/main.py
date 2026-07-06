@@ -1,5 +1,5 @@
 """
-ZedConnect - A Zambia-focused Dating App
+ZedMatch - A Zambia-focused Dating App
 Main application entry point
 """
 
@@ -20,7 +20,7 @@ models.Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="ZedConnect",
+    title="ZedMatch",
     description="A Zambia-focused dating application",
     version="1.0.0"
 )
@@ -63,13 +63,13 @@ async def home(request: Request, db: Session = Depends(get_db)):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - Home</title>
+        <title>ZedMatch - Home</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body style="display: flex; flex-direction: column; min-height: 100vh;">
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">ZedMatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -95,7 +95,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         
         <main class="main-content">
             <div class="hero">
-                <h1>Welcome to ZedConnect ❤️</h1>
+                <h1>Welcome to ZedMatch ❤️</h1>
                 <p class="tagline">Connecting hearts across Zambia - from Lusaka to Copperbelt and beyond!</p>
                 
                 <div class="hero-buttons">
@@ -106,7 +106,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

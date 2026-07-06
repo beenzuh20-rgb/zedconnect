@@ -1,5 +1,5 @@
 """
-Database models for ZedConnect
+Database models for ZedMatch
 User, Match, and Message models
 """
 
@@ -31,11 +31,25 @@ class User(Base):
     profile_picture_url = Column(String, default="/static/default_profile.png")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
+    # Profile verification
+    is_verified = Column(Boolean, default=False)  # Email or phone verified
+    verification_token = Column(String, nullable=True)  # Token for email verification
+    
+    # Password reset
+    reset_token = Column(String, nullable=True)  # Token for password reset
+    reset_token_expires = Column(DateTime(timezone=True), nullable=True)  # Expiration time for reset token
+    
+    # Interests and relationship goals
+    interests = Column(Text, nullable=True)  # Comma-separated interests
+    relationship_goals = Column(String, nullable=True)  # "dating", "relationship", "marriage", "friendship"
+    
     # Relationships
     likes_given = relationship("Like", foreign_keys="Like.liker_id", back_populates="liker")
     likes_received = relationship("Like", foreign_keys="Like.liked_id", back_populates="liked")
     messages_sent = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender")
     messages_received = relationship("Message", foreign_keys="Message.receiver_id", back_populates="receiver")
+    blocks_given = relationship("Block", foreign_keys="Block.blocker_id", back_populates="blocker")
+    blocks_received = relationship("Block", foreign_keys="Block.blocked_id", back_populates="blocked")
 
 
 class Like(Base):
@@ -58,19 +72,42 @@ class Like(Base):
 class Message(Base):
     """
     Message model for chat between matched users
+    Supports text, voice notes, and photo sharing
     """
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
     sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    content = Column(Text, nullable=False)
+    content = Column(Text, nullable=True)  # Text content (optional for media)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_read = Column(Boolean, default=False)
+    
+    # Media support
+    message_type = Column(String, default="text")  # "text", "voice", "photo"
+    media_url = Column(String, nullable=True)  # URL for voice note or photo
+    media_duration = Column(Integer, nullable=True)  # Duration in seconds for voice notes
     
     # Relationships
     sender = relationship("User", foreign_keys=[sender_id], back_populates="messages_sent")
     receiver = relationship("User", foreign_keys=[receiver_id], back_populates="messages_received")
+
+
+class Block(Base):
+    """
+    Block model for user blocking functionality
+    A user can block another user to prevent messages
+    """
+    __tablename__ = "blocks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    blocker_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    blocked_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    blocker = relationship("User", foreign_keys=[blocker_id], back_populates="blocks_given")
+    blocked = relationship("User", foreign_keys=[blocked_id], back_populates="blocks_received")
 
 
 class Report(Base):

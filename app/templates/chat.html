@@ -6,6 +6,11 @@
     <div class="chat-header">
         <a href="/chat/" class="back-link">← Back</a>
         <h2>Chat with {{ other_user.full_name or 'Anonymous' }}</h2>
+        <div class="chat-call-buttons">
+            <button onclick="callManager.startCall({{ other_user.id }}, '{{ other_user.full_name or 'Anonymous' }}', 'video')" class="btn-video-call">📹 Video Call</button>
+            <button onclick="callManager.startCall({{ other_user.id }}, '{{ other_user.full_name or 'Anonymous' }}', 'audio')" class="btn-audio-call">📞 Audio Call</button>
+        </div>
+        <button onclick="blockUser({{ other_user.id }}, '{{ other_user.full_name or 'Anonymous' }}')" class="btn-block-user" title="Block User">🚫</button>
     </div>
     
     <div class="messages-container">
@@ -13,10 +18,29 @@
         {% for message in messages %}
         <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
             <div class="message-content">
+                {% if message.message_type == 'voice' %}
+                <div class="voice-message">
+                    <audio controls>
+                        <source src="{{ message.media_url }}" type="audio/webm">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <span class="voice-duration">{{ message.media_duration or 0 }}s</span>
+                </div>
+                {% elif message.message_type == 'photo' %}
+                <div class="photo-message">
+                    <img src="{{ message.media_url }}" alt="Shared photo" onclick="window.open('{{ message.media_url }}', '_blank')">
+                </div>
+                {% else %}
                 {{ message.content }}
+                {% endif %}
             </div>
             <div class="message-time">
                 {{ message.created_at.strftime('%H:%M') }}
+                {% if message.is_read %}
+                <span class="read-receipt">✓✓</span>
+                {% else %}
+                <span class="read-receipt">✓</span>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -27,9 +51,121 @@
         {% endif %}
     </div>
     
-    <form action="/chat/send/{{ other_user.id }}" method="post" class="message-form">
-        <input type="text" name="content" placeholder="Type your message..." required autocomplete="off">
+    <form action="/chat/send/{{ other_user.id }}" method="post" class="message-form" enctype="multipart/form-data">
+        <div class="message-input-container">
+            <input type="text" name="content" placeholder="Type your message..." autocomplete="off" id="message-input">
+            <label for="photo-upload" class="btn-photo-upload" title="Send Photo">📷</label>
+            <input type="file" id="photo-upload" name="photo" accept="image/*" style="display: none;">
+            <button type="button" class="btn-voice-record" title="Record Voice Note" onclick="startVoiceRecording()">🎤</button>
+        </div>
         <button type="submit">Send</button>
     </form>
+    
+    <div id="voice-recording-ui" class="voice-recording-ui" style="display: none;">
+        <div class="recording-indicator">
+            <span class="recording-dot"></span>
+            <span>Recording... <span id="recording-timer">0:00</span></span>
+        </div>
+        <div class="recording-actions">
+            <button type="button" class="btn-stop-recording" onclick="stopVoiceRecording()">Stop</button>
+            <button type="button" class="btn-cancel-recording" onclick="cancelVoiceRecording()">Cancel</button>
+        </div>
+    </div>
 </div>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+let recordingTimer;
+let seconds = 0;
+
+async function startVoiceRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const formData = new FormData();
+            formData.append('voice', audioBlob, 'voice.webm');
+            
+            const response = await fetch('/chat/send/{{ other_user.id }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                window.location.reload();
+            }
+        };
+        
+        mediaRecorder.start();
+        document.getElementById('voice-recording-ui').style.display = 'block';
+        document.querySelector('.message-input-container').style.display = 'none';
+        
+        seconds = 0;
+        recordingTimer = setInterval(() => {
+            seconds++;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('recording-timer').textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }, 1000);
+    } catch (err) {
+        alert('Could not access microphone. Please check permissions.');
+    }
+}
+
+function stopVoiceRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        clearInterval(recordingTimer);
+    }
+}
+
+function cancelVoiceRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        clearInterval(recordingTimer);
+    }
+    document.getElementById('voice-recording-ui').style.display = 'none';
+    document.querySelector('.message-input-container').style.display = 'flex';
+}
+
+async function blockUser(userId, userName) {
+    if (confirm('Are you sure you want to block ' + userName + '? You will not be able to message each other.')) {
+        const response = await fetch('/chat/block/' + userId, {
+            method: 'POST'
+        });
+        if (response.ok) {
+            alert('User blocked successfully');
+            window.location.href = '/chat/';
+        }
+    }
+}
+
+// Handle photo upload
+document.getElementById('photo-upload').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('photo', file);
+        
+        const response = await fetch('/chat/send/{{ other_user.id }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        }
+    }
+});
+</script>
 {% endblock %}
