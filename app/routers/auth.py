@@ -36,14 +36,8 @@ def validate_email(email: str) -> bool:
 
 def validate_password(password: str) -> tuple:
     """Validate password strength - returns (is_valid, error_message)"""
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters long"
-    if not re.search(r'[A-Z]', password):
-        return False, "Password must contain at least one uppercase letter"
-    if not re.search(r'[a-z]', password):
-        return False, "Password must contain at least one lowercase letter"
-    if not re.search(r'[0-9]', password):
-        return False, "Password must contain at least one digit"
+    if len(password) < 6:
+        return False, "Password must be at least 6 characters long"
     return True, None
 
 
@@ -156,7 +150,7 @@ async def register_page(request: Request):
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required placeholder="Create a password (min 8 chars, 1 uppercase, 1 lowercase, 1 digit)">
+<input type="password" id="password" name="password" required placeholder="Create a password (min 6 characters)">
                     </div>
                     <div class="form-group">
                         <label for="full_name">Full Name</label>
@@ -779,7 +773,7 @@ async def reset_password_page(
                 <form action="/auth/reset-password/{token}" method="post" class="auth-form">
                     <div class="form-group">
                         <label for="password">New Password</label>
-                        <input type="password" id="password" name="password" required placeholder="Enter new password (min 8 chars, 1 uppercase, 1 lowercase, 1 digit)">
+<input type="password" id="password" name="password" required placeholder="Enter new password (min 6 characters)">
                     </div>
                     <div class="form-group">
                         <label for="confirm_password">Confirm Password</label>

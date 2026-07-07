@@ -308,7 +308,7 @@ async def chat_with_user(
                         <input type="file" id="photo-upload" name="photo" accept="image/*" style="display: none;">
                         <button type="button" class="btn-voice-record" title="Record Voice Note" onclick="startVoiceRecording()">🎤</button>
                     </div>
-                    <button type="submit">Send</button>
+<button type="submit" class="btn btn-primary" style="padding: 12px 20px; border-radius: 24px;">📤 Send</button>
                 </form>
                 
                 <div id="voice-recording-ui" class="voice-recording-ui" style="display: none;">
