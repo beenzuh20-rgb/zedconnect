@@ -39,12 +39,16 @@ app.include_router(chat.router)
 app.include_router(reports.router)
 
 # WebRTC signaling WebSocket endpoint (must be last to avoid path conflicts)
-from fastapi import WebSocket, Depends
-from app.database import get_db
+from fastapi import WebSocket
 
 @app.websocket("/ws/signaling")
-async def websocket_signaling(websocket: WebSocket, db: Session = Depends(get_db)):
-    await signaling_websocket(websocket, db)
+async def websocket_signaling(websocket: WebSocket):
+    from app.database import SessionLocal
+    db = SessionLocal()
+    try:
+        await signaling_websocket(websocket, db)
+    finally:
+        db.close()
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -295,7 +295,7 @@ async def edit_profile(
     gender: str = Form(None),
     location: str = Form(None),
     bio: str = Form(None),
-    interests: str = Form(None),
+    interests: list = Form(None),
     relationship_goals: str = Form(None),
     profile_pic: UploadFile = File(None),
     csrf_token: str = Form(None),
@@ -323,7 +323,7 @@ async def edit_profile(
     if bio is not None:
         current_user.bio = bio
     if interests is not None:
-        current_user.interests = interests
+        current_user.interests = ",".join(interests) if interests else None
     if relationship_goals is not None:
         current_user.relationship_goals = relationship_goals
     
