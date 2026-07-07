@@ -6,7 +6,6 @@ Handles user registration, login, and JWT token management
 from datetime import datetime, timedelta
 import re
 import secrets
-import hashlib
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -17,8 +16,8 @@ from app import models, config
 from app.database import get_db
 from app.moderation import detect_fake_account, moderate_text
 
-# Password hashing context using bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing context using Argon2
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # Create router
 router = APIRouter(
@@ -56,15 +55,13 @@ def sanitize_input(text: str) -> str:
 
 # Helper functions
 def verify_password(plain_password, hashed_password):
-    # Hash the password with SHA-256 first, then verify with bcrypt
-    sha256_hash = hashlib.sha256(plain_password.encode()).hexdigest()
-    return pwd_context.verify(sha256_hash, hashed_password)
+    # Verify password with Argon2
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
-    # Hash the password with SHA-256 first, then hash with bcrypt
-    sha256_hash = hashlib.sha256(password.encode()).hexdigest()
-    return pwd_context.hash(sha256_hash)
+    # Hash password with Argon2
+    return pwd_context.hash(password)
 
 
 def create_access_token(data: dict):
