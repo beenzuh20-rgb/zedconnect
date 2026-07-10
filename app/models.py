@@ -31,6 +31,18 @@ class User(Base):
     profile_picture_url = Column(String, default="/static/default_profile.png")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
+    # Email verification fields
+    is_verified = Column(Boolean, default=False)
+    verification_token = Column(String, nullable=True)
+    
+    # Password reset fields
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime(timezone=True), nullable=True)
+    
+    # User preferences
+    interests = Column(Text, nullable=True)
+    relationship_goals = Column(String, nullable=True)
+    
     # Relationships
     likes_given = relationship("Like", foreign_keys="Like.liker_id", back_populates="liker")
     likes_received = relationship("Like", foreign_keys="Like.liked_id", back_populates="liked")
