@@ -1,5 +1,5 @@
 """
-Matches router for ZedConnect
+Matches router for ZedMatch
 Handles like system and mutual matches
 """
 
@@ -68,13 +68,13 @@ async def browse_users(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - Browse Users</title>
+        <title>ZedMatch - Browse Users</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">ZedMatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -98,7 +98,7 @@ async def browse_users(
         </main>
         
                <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -198,13 +198,13 @@ async def mutual_matches(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - My Matches</title>
+        <title>ZedMatch - My Matches</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">ZedMatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -228,7 +228,7 @@ async def mutual_matches(
         </main>
         
                 <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

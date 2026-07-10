@@ -4,6 +4,7 @@ Seed script to create fake user profiles for ZamConnect
 
 from app.database import SessionLocal, init_db
 from app import models
+from app.routers.auth import get_password_hash
 import random
 
 # Create database tables
@@ -38,7 +39,7 @@ def create_fake_users():
     # Special profile you requested
     special_user = models.User(
         email="nkombo.sikota@example.com",
-        hashed_password="fakehashedpassword123",
+        hashed_password=get_password_hash("password123"),
         full_name="Nkombo Sikota",
         age=30,
         gender="female",
@@ -63,7 +64,7 @@ def create_fake_users():
         # This service provides random avatar images that always load
         user = models.User(
             email=f"user{i+1}@example.com",
-            hashed_password="fakehashedpassword123",
+            hashed_password=get_password_hash("password123"),
             full_name=full_name,
             age=random.randint(18, 35),
             gender=gender,

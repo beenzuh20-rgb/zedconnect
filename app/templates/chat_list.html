@@ -12,8 +12,11 @@
             <img src="{{ match.profile_picture_url or '/static/default_profile.png' }}" alt="Profile" class="conversation-pic">
             <div class="conversation-info">
                 <h3>{{ match.full_name or 'Anonymous' }}</h3>
-                <p>Tap to start chatting</p>
+                <p>{{ match.last_message or 'Tap to start chatting' }}</p>
             </div>
+            {% if match.unread_count > 0 %}
+            <span class="unread-badge">{{ match.unread_count }}</span>
+            {% endif %}
         </a>
         {% endfor %}
     </div>

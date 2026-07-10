@@ -1,5 +1,5 @@
 /**
- * WebRTC Video/Audio Calling for ZedConnect
+ * WebRTC Video/Audio Calling for ZedMatch
  * Handles peer-to-peer video and audio calls between matched users
  */
 

@@ -1,5 +1,5 @@
 """
-Users router for ZedConnect
+Users router for ZedMatch
 Handles user profile viewing and editing
 """
 
@@ -30,6 +30,18 @@ router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
+
+# Available interests for users to select
+INTERESTS = [
+    "Music", "Movies", "Sports", "Travel", "Food", "Reading",
+    "Gaming", "Cooking", "Dancing", "Hiking", "Photography",
+    "Art", "Technology", "Fashion", "Fitness", "Camping"
+]
+
+# Relationship goals options
+RELATIONSHIP_GOALS = [
+    "dating", "relationship", "marriage", "friendship"
+]
 
 
 def save_profile_picture(file: UploadFile, user_id: int) -> str:
@@ -88,19 +100,20 @@ async def profile_page(
 ):
     """Display current user's profile page"""
     provinces = models.ZAMBIA_PROVINCES
+    csrf_token = request.cookies.get("csrf_token", "")
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - My Profile</title>
+        <title>ZedMatch - My Profile</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">ZedMatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -120,6 +133,7 @@ async def profile_page(
                     <img src="{current_user.profile_picture_url or '/static/default_profile.png'}" alt="Profile Picture" class="profile-pic-large" id="preview-pic">
                     
                     <form action="/users/profile/edit" method="post" class="profile-form" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{csrf_token}">
                         <div class="form-group">
                             <label for="profile_pic">Profile Picture</label>
                             <input type="file" id="profile_pic" name="profile_pic" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewImage(this)">
@@ -156,19 +170,39 @@ async def profile_page(
                             </select>
                         </div>
                         
-                        <div class="form-group">
+<div class="form-group">
                             <label for="bio">Bio</label>
                             <textarea id="bio" name="bio" rows="4">{current_user.bio or ''}</textarea>
                         </div>
                         
+                        <div class="form-group">
+                            <label>Interests (select up to 5)</label>
+                            <div class="interests-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                                {''.join([f'<label style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; color: var(--text-secondary);"><input type="checkbox" name="interests" value="{interest}" {'checked' if current_user.interests and interest in current_user.interests.split(',') else ''}> {interest}</label>' for interest in INTERESTS])}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="relationship_goals">Relationship Goals</label>
+                            <select id="relationship_goals" name="relationship_goals">
+                                <option value="">Select Goals</option>
+                                {''.join([f'<option value="{goal}" {'selected' if current_user.relationship_goals == goal else ''}>{goal.title()}</option>' for goal in RELATIONSHIP_GOALS])}
+                            </select>
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary">Save Profile</button>
+                    </form>
+                    
+                    <form action="/users/profile/delete" method="post" onsubmit="return confirm('Are you sure you want to delete your profile? This action cannot be undone.')" style="margin-top: 1rem;">
+                        <input type="hidden" name="csrf_token" value="{csrf_token}">
+                        <button type="submit" class="btn btn-danger">Delete Profile</button>
                     </form>
                 </div>
             </div>
         </main>
         
-                <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+        <footer class="footer">
+            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -217,13 +251,13 @@ async def view_user_profile(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - {user.full_name or 'User Profile'}</title>
+        <title>ZedMatch - {user.full_name or 'User Profile'}</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">ZedMatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -242,10 +276,12 @@ async def view_user_profile(
                 <div class="profile-card">
                     <img src="{user.profile_picture_url or '/static/default_profile.png'}" alt="Profile Picture" class="profile-pic-large">
                     
-                    <div class="user-info">
+<div class="user-info">
                         <p class="age-gender">{user.age or 'N/A'} years old • {user.gender or 'Not specified'}</p>
                         <p class="location">📍 {user.location or 'Zambia'}</p>
                         <p class="bio">{user.bio or 'No bio yet'}</p>
+                        {f'<p class="interests" style="margin-top: 0.5rem;"><strong>Interests:</strong> {user.interests}</p>' if user.interests else ''}
+                        {f'<p class="goals" style="margin-top: 0.3rem;"><strong>Looking for:</strong> {user.relationship_goals.title() if user.relationship_goals else 'Not specified'}</p>' if user.relationship_goals else ''}
                     </div>
                     
                     <div class="user-actions" style="margin-top: 2rem;">
@@ -260,7 +296,7 @@ async def view_user_profile(
         </main>
         
                 <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -283,7 +319,10 @@ async def edit_profile(
     gender: str = Form(None),
     location: str = Form(None),
     bio: str = Form(None),
+    interests: list = Form(None),
+    relationship_goals: str = Form(None),
     profile_pic: UploadFile = File(None),
+    csrf_token: str = Form(None),
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -307,8 +346,52 @@ async def edit_profile(
         current_user.location = location
     if bio is not None:
         current_user.bio = bio
+    if interests is not None:
+        current_user.interests = ",".join(interests) if interests else None
+    if relationship_goals is not None:
+        current_user.relationship_goals = relationship_goals
     
     db.commit()
     db.refresh(current_user)
     
     return RedirectResponse(url="/users/profile", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/profile/delete")
+async def delete_profile(
+    request: Request,
+    csrf_token: str = Form(None),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete current user's profile"""
+    # Delete all related data first
+    # Delete messages sent and received
+    db.query(models.Message).filter(
+        (models.Message.sender_id == current_user.id) | (models.Message.receiver_id == current_user.id)
+    ).delete(synchronize_session=False)
+    
+    # Delete likes given and received
+    db.query(models.Like).filter(
+        (models.Like.liker_id == current_user.id) | (models.Like.liked_id == current_user.id)
+    ).delete(synchronize_session=False)
+    
+    # Delete blocks given and received
+    db.query(models.Block).filter(
+        (models.Block.blocker_id == current_user.id) | (models.Block.blocked_id == current_user.id)
+    ).delete(synchronize_session=False)
+    
+    # Delete reports made by user
+    db.query(models.Report).filter(models.Report.reporter_id == current_user.id).delete(synchronize_session=False)
+    
+    # Delete reports made against user
+    db.query(models.Report).filter(models.Report.reported_id == current_user.id).delete(synchronize_session=False)
+    
+    # Delete the user
+    db.delete(current_user)
+    db.commit()
+    
+    # Clear the session cookie
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie(key="access_token")
+    return response

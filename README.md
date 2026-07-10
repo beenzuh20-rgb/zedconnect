@@ -1,4 +1,4 @@
-# ZedConnect - A Zambia-focused Dating App
+# ZedMatch - A Zambia-focused Dating App
 
 A simple, mobile-friendly dating web application built with FastAPI, SQLAlchemy, and SQLite.
 
@@ -15,7 +15,7 @@ A simple, mobile-friendly dating web application built with FastAPI, SQLAlchemy,
 ## Project Structure
 
 ```
-ZedConnect/
+ZedMatch/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py              # Main application entry point

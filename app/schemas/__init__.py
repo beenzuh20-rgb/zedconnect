@@ -1,4 +1,4 @@
 """
-Schemas package for ZedConnect
+Schemas package for ZedMatch
 """
 from app.schemas import user
