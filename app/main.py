@@ -5,7 +5,7 @@ Main application entry point
 
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
@@ -127,6 +127,12 @@ async def home(request: Request, db: Session = Depends(get_db)):
     </html>
     """
     return HTMLResponse(content=html_content)
+
+
+# Favicon - return empty to avoid 404 errors in browser console
+@app.get("/favicon.ico")
+async def favicon():
+    return Response(status_code=204)
 
 
 # Terms and Conditions page
