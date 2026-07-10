@@ -2,12 +2,12 @@
 Seed script to create fake user profiles for ZamConnect
 """
 
-from app.database import SessionLocal, engine
+from app.database import SessionLocal, init_db
 from app import models
 import random
 
 # Create database tables
-models.Base.metadata.create_all(bind=engine)
+init_db()
 
 # Sample data
 first_names_male = ["Chileshe", "Mwape", "Nkombo", "Sikota", "Chibwana", "Mwansa", "Kunda", "Chisanga", "Banda", "Mwelwa"]

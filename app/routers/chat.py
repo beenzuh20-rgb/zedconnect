@@ -9,12 +9,16 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
 from app.routers.auth import get_current_user
+from fastapi.templating import Jinja2Templates
+import os
 
 # Create router
 router = APIRouter(
     prefix="/chat",
     tags=["chat"]
 )
+
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates"))
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -149,20 +153,39 @@ async def chat_with_user(
         ((models.Message.sender_id == user_id) & (models.Message.receiver_id == current_user.id))
     ).order_by(models.Message.created_at).all()
     
-    # Build messages HTML
+    # Build messages HTML - separate text and image messages
     messages_html = ""
     for message in messages:
         is_sent = "sent" if message.sender_id == current_user.id else "received"
-        messages_html += f"""
-        <div class="message {is_sent}">
-            <div class="message-content">
-                {message.content}
+        time_str = message.created_at.strftime('%H:%M') if message.created_at else ''
+        
+        if message.image_url:
+            # Photo message - use "Shared photo" card style
+            messages_html += f"""
+            <div class="message {is_sent} message-photo">
+                <div class="message-content">
+                    <div class="photo-card">
+                        <img src="{message.image_url}" alt="Shared photo" class="photo-message-img">
+                        <div class="photo-label">📷 Shared photo</div>
+                    </div>
+                </div>
+                <div class="message-time">
+                    {time_str}
+                </div>
             </div>
-            <div class="message-time">
-                {message.created_at.strftime('%H:%M') if message.created_at else ''}
+            """
+        else:
+            # Text message - clean bubble with escaped text
+            messages_html += f"""
+            <div class="message {is_sent}">
+                <div class="message-content">
+                    {message.content}
+                </div>
+                <div class="message-time">
+                    {time_str}
+                </div>
             </div>
-        </div>
-        """
+            """
     
     if not messages:
         messages_html = """

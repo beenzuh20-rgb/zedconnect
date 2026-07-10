@@ -4,6 +4,7 @@ Handles user profile viewing and editing
 """
 
 import os
+import io
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -13,6 +14,17 @@ from app.database import get_db
 from app.routers.auth import get_current_user
 from PIL import Image
 
+import cloudinary
+import cloudinary.uploader
+
+# Configure Cloudinary at module level
+cloudinary.config(
+    cloud_name=config.CLOUDINARY_CLOUD_NAME,
+    api_key=config.CLOUDINARY_API_KEY,
+    api_secret=config.CLOUDINARY_API_SECRET,
+    secure=True
+)
+
 # Create router
 router = APIRouter(
     prefix="/users",
@@ -21,40 +33,52 @@ router = APIRouter(
 
 
 def save_profile_picture(file: UploadFile, user_id: int) -> str:
-    """Save and process profile picture, return the URL path"""
+    """Upload profile picture to Cloudinary, return the secure URL"""
     # Check file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in config.ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail="Invalid file type. Allowed: jpg, jpeg, png, gif, webp")
-    
+
+    # Read file bytes for size check and upload
+    file_bytes = file.file.read()
+    file_size = len(file_bytes)
+
     # Check file size
-    file.file.seek(0, 2)  # Seek to end
-    file_size = file.file.tell()
-    file.file.seek(0)  # Reset to beginning
     if file_size > config.MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail="File too large. Max size: 5MB")
-    
-    # Create unique filename
-    filename = f"profile_{user_id}_{uuid.uuid4().hex[:8]}{file_ext}"
-    filepath = os.path.join(config.UPLOAD_DIR, filename)
-    
-    # Ensure upload directory exists
-    os.makedirs(config.UPLOAD_DIR, exist_ok=True)
-    
-    # Read and process image
-    image = Image.open(file.file)
-    
-    # Convert to RGB if necessary (for PNG with transparency, etc.)
-    if image.mode in ("RGBA", "P"):
-        image = image.convert("RGB")
-    
-    # Resize to max 400x400 for profile pictures
-    image.thumbnail((400, 400), Image.Resampling.LANCZOS)
-    
-    # Save image
-    image.save(filepath, "JPEG", quality=85)
-    
-    return f"/static/profile_pics/{filename}"
+
+    # Validate that it's actually an image by attempting to open it with PIL
+    try:
+        image = Image.open(io.BytesIO(file_bytes))
+        # Convert to RGB if necessary (for PNG with transparency, etc.)
+        if image.mode in ("RGBA", "P"):
+            image = image.convert("RGB")
+        # Resize to max 400x400 for profile pictures
+        image.thumbnail((400, 400), Image.Resampling.LANCZOS)
+        # Save processed image to bytes for upload
+        img_bytes = io.BytesIO()
+        image.save(img_bytes, format="JPEG", quality=85)
+        img_bytes.seek(0)
+        upload_file_bytes = img_bytes.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Uploaded file is not a valid image")
+
+    # Upload to Cloudinary
+    public_id = f"profile_{user_id}_{uuid.uuid4().hex[:8]}"
+    try:
+        result = cloudinary.uploader.upload(
+            upload_file_bytes,
+            public_id=public_id,
+            folder="zedconnect_profile_pics",
+            overwrite=True,
+            resource_type="image",
+            transformation=[
+                {"width": 400, "height": 400, "crop": "limit", "quality": "auto:good"}
+            ]
+        )
+        return result["secure_url"]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload image to cloud storage: {str(e)}")
 
 
 @router.get("/profile", response_class=HTMLResponse)

@@ -9,14 +9,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.database import engine, get_db
+from app.database import get_db, init_db
 from app import models
 from app.routers import auth, users, matches, chat, reports
 from app.middleware import add_middlewares
 from app.webrtc_signaling import signaling_websocket
-
-# Create database tables
-models.Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -27,6 +24,12 @@ app = FastAPI(
 
 # Add CORS and other middlewares
 add_middlewares(app)
+
+# Create database tables on application startup
+@app.on_event("startup")
+def on_startup():
+    """Initialize database tables when the app starts."""
+    init_db()
 
 # Mount static files for CSS and images
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

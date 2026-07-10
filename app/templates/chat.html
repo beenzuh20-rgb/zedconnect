@@ -6,14 +6,25 @@
     <div class="chat-header">
         <a href="/chat/" class="back-link">← Back</a>
         <h2>Chat with {{ other_user.full_name or 'Anonymous' }}</h2>
+        <div class="chat-call-buttons">
+            <button onclick="callManager.startCall({{ other_user.id }}, '{{ other_user.full_name or 'Anonymous' }}', 'video')" class="btn-video-call">📹 Video Call</button>
+            <button onclick="callManager.startCall({{ other_user.id }}, '{{ other_user.full_name or 'Anonymous' }}', 'audio')" class="btn-audio-call">📞 Audio Call</button>
+        </div>
     </div>
     
     <div class="messages-container">
         {% if messages %}
         {% for message in messages %}
-        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %} {% if message.image_url %}message-photo{% endif %}">
             <div class="message-content">
+                {% if message.image_url %}
+                <div class="photo-card">
+                    <img src="{{ message.image_url }}" alt="Shared photo" class="photo-message-img">
+                    <div class="photo-label">📷 Shared photo</div>
+                </div>
+                {% else %}
                 {{ message.content }}
+                {% endif %}
             </div>
             <div class="message-time">
                 {{ message.created_at.strftime('%H:%M') }}
