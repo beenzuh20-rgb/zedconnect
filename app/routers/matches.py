@@ -8,13 +8,31 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
-from app.routers.auth import get_current_user   # Updated import
+from app.routers.auth import get_current_user
+from datetime import datetime
 
 # Create router
 router = APIRouter(
     prefix="/matches",
     tags=["matches"]
 )
+
+
+def get_nav_notifications(db: Session, current_user: models.User):
+    """Get notification counts for navbar badges"""
+    new_matches_count = db.query(models.Notification).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.type == "new_match",
+        models.Notification.is_read == False
+    ).count()
+    
+    unread_messages_count = db.query(models.Message).filter(
+        models.Message.receiver_id == current_user.id,
+        models.Message.is_read == False,
+        models.Message.message_type == "text"
+    ).count()
+    
+    return new_matches_count, unread_messages_count
 
 
 @router.get("/browse", response_class=HTMLResponse)
@@ -31,6 +49,9 @@ async def browse_users(
     users = db.query(models.User).filter(
         ~models.User.id.in_(liked_user_ids)
     ).all()
+    
+    # Get notification counts
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     
     # Build user cards HTML
     user_cards = ""
@@ -78,8 +99,8 @@ async def browse_users(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>
@@ -143,6 +164,13 @@ async def like_user(
     ).first()
     
     if mutual_like:
+        new_match_notification = models.Notification(
+            user_id=user_id,
+            type="new_match",
+            related_id=current_user.id
+        )
+        db.add(new_match_notification)
+        db.commit()
         return RedirectResponse(url="/matches/mutual", status_code=status.HTTP_303_SEE_OTHER)
     
     return RedirectResponse(url="/matches/browse", status_code=status.HTTP_303_SEE_OTHER)
@@ -155,6 +183,17 @@ async def mutual_matches(
     db: Session = Depends(get_db)
 ):
     """View mutual matches"""
+    # Mark match notifications as read
+    db.query(models.Notification).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.type == "new_match",
+        models.Notification.is_read == False
+    ).update({"is_read": True})
+    db.commit()
+    
+    # Get notification counts
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
+    
     # ... (your original code)
     users_who_liked_me = db.query(models.Like).filter(
         models.Like.liked_id == current_user.id
@@ -208,8 +247,8 @@ async def mutual_matches(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>

@@ -10,3 +10,4 @@ instance/
 *.sqlite
 *.db
 static/profile_pics/
+static/chat_media/

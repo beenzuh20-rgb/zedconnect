@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from contextlib import asynccontextmanager
 
 from app.database import get_db, init_db
 from app import models
@@ -15,21 +16,21 @@ from app.routers import auth, users, matches, chat, reports
 from app.middleware import add_middlewares
 from app.webrtc_signaling import signaling_websocket
 
-# Initialize FastAPI app
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 app = FastAPI(
     title="ZedMatch",
     description="A Zambia-focused dating application",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Add CORS and other middlewares
 add_middlewares(app)
-
-# Create database tables on application startup
-@app.on_event("startup")
-def on_startup():
-    """Initialize database tables when the app starts."""
-    init_db()
 
 # Mount static files for CSS and images
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -60,9 +61,21 @@ async def home(request: Request, db: Session = Depends(get_db)):
     try:
         current_user = await auth.get_current_user(request, db)
         is_logged_in = True
+        new_matches_count = db.query(models.Notification).filter(
+            models.Notification.user_id == current_user.id,
+            models.Notification.type == "new_match",
+            models.Notification.is_read == False
+        ).count()
+        unread_messages_count = db.query(models.Message).filter(
+            models.Message.receiver_id == current_user.id,
+            models.Message.is_read == False,
+            models.Message.message_type == "text"
+        ).count()
     except:
         current_user = None
         is_logged_in = False
+        new_matches_count = 0
+        unread_messages_count = 0
 
     html_content = f"""
     <!DOCTYPE html>
@@ -80,8 +93,8 @@ async def home(request: Request, db: Session = Depends(get_db)):
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
     """
     
     if is_logged_in:
@@ -129,10 +142,11 @@ async def home(request: Request, db: Session = Depends(get_db)):
     return HTMLResponse(content=html_content)
 
 
-# Favicon - return empty to avoid 404 errors in browser console
+# Favicon - serve actual file instead of 204
+from fastapi.responses import FileResponse
 @app.get("/favicon.ico")
 async def favicon():
-    return Response(status_code=204)
+    return FileResponse("app/static/favicon.ico")
 
 
 # Terms and Conditions page

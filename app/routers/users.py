@@ -93,20 +93,37 @@ def save_profile_picture(file: UploadFile, user_id: int) -> str:
         raise HTTPException(status_code=500, detail=f"Failed to upload image to cloud storage: {str(e)}")
 
 
+def get_nav_notifications(db: Session, current_user: models.User):
+    """Get notification counts for navbar badges"""
+    new_matches_count = db.query(models.Notification).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.type == "new_match",
+        models.Notification.is_read == False
+    ).count()
+    
+    unread_messages_count = db.query(models.Message).filter(
+        models.Message.receiver_id == current_user.id,
+        models.Message.is_read == False,
+        models.Message.message_type == "text"
+    ).count()
+    
+    return new_matches_count, unread_messages_count
+
+
 @router.get("/profile", response_class=HTMLResponse)
 async def profile_page(
     request: Request, 
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Display current user's profile page"""
     provinces = models.ZAMBIA_PROVINCES
     csrf_token = request.cookies.get("csrf_token", "")
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ZedMatch - My Profile</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
@@ -117,8 +134,8 @@ async def profile_page(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>
@@ -239,18 +256,18 @@ async def profile_page(
 async def view_user_profile(
     request: Request, 
     user_id: int, 
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """View another user's profile"""
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ZedMatch - {user.full_name or 'User Profile'}</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
@@ -261,8 +278,8 @@ async def view_user_profile(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>

@@ -114,6 +114,23 @@ class Block(Base):
     blocked = relationship("User", foreign_keys=[blocked_id], back_populates="blocks_received")
 
 
+class Notification(Base):
+    """
+    Notification model for tracking new matches and unread messages
+    """
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    type = Column(String, nullable=False)  # "new_match", "unread_message"
+    related_id = Column(Integer, nullable=True)  # user_id or conversation id
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    user = relationship("User")
+
+
 class Report(Base):
     """
     Report model for user reporting functionality

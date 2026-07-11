@@ -30,6 +30,23 @@ REPORT_REASONS = [
 ]
 
 
+def get_nav_notifications(db: Session, current_user: models.User):
+    """Get notification counts for navbar badges"""
+    new_matches_count = db.query(models.Notification).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.type == "new_match",
+        models.Notification.is_read == False
+    ).count()
+    
+    unread_messages_count = db.query(models.Message).filter(
+        models.Message.receiver_id == current_user.id,
+        models.Message.is_read == False,
+        models.Message.message_type == "text"
+    ).count()
+    
+    return new_matches_count, unread_messages_count
+
+
 @router.get("/user/{user_id}", response_class=HTMLResponse)
 async def report_user_page(
     request: Request,
@@ -45,6 +62,8 @@ async def report_user_page(
     reported_user = db.query(models.User).filter(models.User.id == user_id).first()
     if not reported_user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     
     reasons_options = "".join([
         f'<option value="{r}">{r}</option>' for r in REPORT_REASONS
@@ -66,8 +85,8 @@ async def report_user_page(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>
@@ -174,9 +193,11 @@ async def submit_report(
 @router.get("/success", response_class=HTMLResponse)
 async def report_success(
     request: Request,
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Display report submission success page"""
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -193,8 +214,8 @@ async def report_success(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>

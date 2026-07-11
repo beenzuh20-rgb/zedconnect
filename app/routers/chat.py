@@ -35,7 +35,7 @@ def is_user_blocked(db: Session, user_id: int, other_user_id: int) -> bool:
 
 
 def is_mutual_match(db: Session, user1_id: int, user2_id: int) -> bool:
-    """Check if two users are mutual matches"""
+    """Check if two users are a mutual match"""
     my_like = db.query(models.Like).filter(
         models.Like.liker_id == user1_id,
         models.Like.liked_id == user2_id
@@ -47,6 +47,23 @@ def is_mutual_match(db: Session, user1_id: int, user2_id: int) -> bool:
     ).first()
     
     return my_like is not None and their_like is not None
+
+
+def get_nav_notifications(db: Session, current_user: models.User):
+    """Get notification counts for navbar badges"""
+    new_matches_count = db.query(models.Notification).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.type == "new_match",
+        models.Notification.is_read == False
+    ).count()
+    
+    unread_messages_count = db.query(models.Message).filter(
+        models.Message.receiver_id == current_user.id,
+        models.Message.is_read == False,
+        models.Message.message_type == "text"
+    ).count()
+    
+    return new_matches_count, unread_messages_count
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -120,6 +137,9 @@ async def chat_list(
         </div>
         """
     
+    # Get notification counts
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
+    
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -137,8 +157,8 @@ async def chat_list(
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
-                    <li><a href="/matches/mutual">Matches</a></li>
-                    <li><a href="/chat/">Chat</a></li>
+                    <li><a href="/matches/mutual">Matches</a>{' <span class="notification-badge">' + str(new_matches_count) + '</span>' if new_matches_count > 0 else ''}</li>
+                    <li><a href="/chat/">Chat</a>{' <span class="notification-badge">' + str(unread_messages_count) + '</span>' if unread_messages_count > 0 else ''}</li>
                     <li><a href="/users/profile">Profile</a></li>
                     <li><a href="/auth/logout">Logout</a></li>
                 </ul>
@@ -203,6 +223,9 @@ async def chat_with_user(
         if message.receiver_id == current_user.id and not message.is_read:
             message.is_read = True
     db.commit()
+    
+    # Get notification counts
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     
     # Build messages HTML
     messages_html = ""
@@ -501,7 +524,7 @@ async def send_message(
     # Handle photo
     if 'photo' in form:
         photo_file = form['photo']
-        if photo_file:
+        if photo_file and photo_file.filename:
             # Save photo file
             file_ext = os.path.splitext(photo_file.filename)[1] or '.jpg'
             file_name = f"photo_{uuid.uuid4()}{file_ext}"
@@ -523,7 +546,7 @@ async def send_message(
             return RedirectResponse(url=f"/chat/with/{user_id}", status_code=status.HTTP_303_SEE_OTHER)
     
     # Handle text message
-    content = form.get('content', '')
+    content = form.get('content', '').strip()
     if content:
         new_message = models.Message(
             sender_id=current_user.id,
@@ -595,6 +618,8 @@ async def blocked_users(
     blocked = db.query(models.Block).filter(
         models.Block.blocker_id == current_user.id
     ).all()
+    
+    new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
     
     blocked_users_list = ""
     for block in blocked:
