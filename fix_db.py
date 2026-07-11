@@ -31,6 +31,11 @@ MISSING_COLUMNS = [
     ("voice_note_url", "VARCHAR"),  # Legacy column
 ]
 
+# Columns to alter (change from NOT NULL to NULL)
+ALTER_COLUMNS = [
+    ("content", "ALTER TABLE messages ALTER COLUMN content DROP NOT NULL"),
+]
+
 def column_exists(conn, table_name, column_name):
     """Check if a column exists in a table"""
     result = conn.execute(
@@ -44,26 +49,26 @@ def column_exists(conn, table_name, column_name):
     return result.fetchone() is not None
 
 def run_migration():
-    """Add missing columns to the messages table"""
+    """Add missing columns to the messages table and fix constraints"""
     with engine.connect() as conn:
         conn.execute(text("COMMIT"))  # Needed for DDL statements
         
         # Check existing columns in messages table
         result = conn.execute(
             text("""
-                SELECT column_name, data_type 
+                SELECT column_name, is_nullable, data_type 
                 FROM information_schema.columns 
                 WHERE table_name = 'messages'
                 ORDER BY ordinal_position
             """)
         )
-        existing = {row[0] for row in result}
-        logger.info(f"Existing columns in messages table: {', '.join(sorted(existing))}")
+        existing = {row[0]: row[1] for row in result}
+        logger.info(f"Existing columns in messages table: {', '.join(sorted(existing.keys()))}")
         
         # Add missing columns
         added = 0
         for col_name, col_type in MISSING_COLUMNS:
-            if not column_exists(conn, 'messages', col_name):
+            if col_name not in existing:
                 logger.info(f"Adding column: {col_name} ({col_type})")
                 conn.execute(
                     text(f'ALTER TABLE messages ADD COLUMN {col_name} {col_type}')
@@ -77,16 +82,29 @@ def run_migration():
         else:
             logger.info("✅ All columns already exist - no migration needed")
         
+        # Alter columns to allow NULL if needed
+        altered = 0
+        for col_name, alter_sql in ALTER_COLUMNS:
+            if col_name in existing and existing[col_name] == 'NO':
+                logger.info(f"Altering column: {col_name} to allow NULL")
+                conn.execute(text(alter_sql))
+                altered += 1
+            else:
+                logger.info(f"Column {col_name} already allows NULL or doesn't exist")
+        
+        if altered > 0:
+            logger.info(f"✅ Successfully altered {altered} column(s)")
+        
         # Verify the final state
         result = conn.execute(
             text("""
-                SELECT column_name, data_type 
+                SELECT column_name, is_nullable, data_type 
                 FROM information_schema.columns 
                 WHERE table_name = 'messages'
                 ORDER BY ordinal_position
             """)
         )
-        final_columns = [f"{row[0]} ({row[1]})" for row in result]
+        final_columns = [f"{row[0]} (nullable={row[1]}, type={row[2]})" for row in result]
         logger.info(f"Final columns in messages table:\n  " + "\n  ".join(final_columns))
 
 if __name__ == "__main__":
