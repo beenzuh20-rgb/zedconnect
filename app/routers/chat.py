@@ -92,9 +92,11 @@ async def chat_list(
         
         last_msg_text = ""
         if last_message:
-            if last_message.message_type == "voice":
+            # Handle both new message_type and old columns (image_url, voice_note_url)
+            msg_type = last_message.message_type or ""
+            if msg_type == "voice" or last_message.voice_note_url:
                 last_msg_text = "🎤 Voice note"
-            elif last_message.message_type == "photo":
+            elif msg_type == "photo" or last_message.image_url:
                 last_msg_text = "📷 Photo"
             else:
                 last_msg_text = last_message.content or ""
@@ -207,13 +209,17 @@ async def chat_with_user(
     for message in messages:
         is_sent = "sent" if message.sender_id == current_user.id else "received"
         
-        if message.message_type == "voice":
+        # Handle both new message_type and old columns (image_url, voice_note_url)
+        msg_type = message.message_type or ""
+        if msg_type == "voice" or message.voice_note_url:
+            # Use voice_note_url for old messages, media_url for new ones
+            media_url = message.media_url or message.voice_note_url or ""
             messages_html += f"""
             <div class="message {is_sent}">
                 <div class="message-content">
                     <div class="voice-message">
                         <audio controls>
-                            <source src="{message.media_url}" type="audio/webm">
+                            <source src="{media_url}" type="audio/webm">
                             Your browser does not support the audio element.
                         </audio>
                         <span class="voice-duration">{message.media_duration or 0}s</span>
@@ -225,12 +231,14 @@ async def chat_with_user(
                 </div>
             </div>
             """
-        elif message.message_type == "photo":
+        elif msg_type == "photo" or message.image_url:
+            # Use image_url for old messages, media_url for new ones
+            media_url = message.media_url or message.image_url or ""
             messages_html += f"""
             <div class="message {is_sent}">
                 <div class="message-content">
                     <div class="photo-message">
-                        <img src="{message.media_url}" alt="Shared photo" onclick="window.open('{message.media_url}', '_blank')">
+                        <img src="{media_url}" alt="Shared photo" onclick="window.open('{media_url}', '_blank')">
                     </div>
                 </div>
                 <div class="message-time">

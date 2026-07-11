@@ -16,8 +16,8 @@ from app import models, config
 from app.database import get_db
 from app.moderation import detect_fake_account, moderate_text
 
-# Password hashing context using Argon2
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+# Password hashing context with multiple schemes for compatibility
+pwd_context = CryptContext(schemes=["argon2", "bcrypt", "sha256_crypt"], deprecated="auto")
 
 # Create router
 router = APIRouter(
@@ -55,8 +55,14 @@ def sanitize_input(text: str) -> str:
 
 # Helper functions
 def verify_password(plain_password, hashed_password):
-    # Verify password with Argon2
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify password with fallback handling for different hash formats"""
+    if not hashed_password:
+        return False
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception:
+        # If hash cannot be identified, return False
+        return False
 
 
 def get_password_hash(password):

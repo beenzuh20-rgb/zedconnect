@@ -83,10 +83,14 @@ class Message(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_read = Column(Boolean, default=False)
     
-    # Media support
+    # Media support (new columns)
     message_type = Column(String, default="text")  # "text", "voice", "photo"
     media_url = Column(String, nullable=True)  # URL for voice note or photo
     media_duration = Column(Integer, nullable=True)  # Duration in seconds for voice notes
+    
+    # Legacy columns for backward compatibility (may exist in database)
+    image_url = Column(String, nullable=True)  # Old photo URL column
+    voice_note_url = Column(String, nullable=True)  # Old voice note URL column
     
     # Relationships
     sender = relationship("User", foreign_keys=[sender_id], back_populates="messages_sent")
