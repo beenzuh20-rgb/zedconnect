@@ -1,5 +1,5 @@
 """
-Database configuration for zedmatch
+Database configuration for zedconnect
 Using SQLAlchemy with PostgreSQL (Neon)
 """
 

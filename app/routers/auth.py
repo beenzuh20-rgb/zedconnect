@@ -1,5 +1,5 @@
 """
-Authentication router for zedmatch
+Authentication router for zedconnect
 Handles user registration, login, and JWT token management
 """
 
@@ -106,13 +106,13 @@ async def register_page(request: Request):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Register</title>
+        <title>zedconnect - Register</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/auth/login">Login</a></li>
@@ -123,7 +123,7 @@ async def register_page(request: Request):
         <main class="main-content">
             <div class="auth-container">
                 <h2>Create Your Account</h2>
-                <p class="subtitle">Join zedmatch and find your perfect match in Zambia</p>
+                <p class="subtitle">Join zedconnect and find your perfect match in Zambia</p>
                 <form action="/auth/register" method="post" class="auth-form">
                     <input type="hidden" name="csrf_token" value="{csrf_token}">
                     <div class="form-group">
@@ -182,7 +182,7 @@ async def register_page(request: Request):
             </div>
         </main>
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -293,13 +293,13 @@ async def login_page(request: Request):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Login</title>
+        <title>zedconnect - Login</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/auth/login">Login</a></li>
@@ -310,7 +310,7 @@ async def login_page(request: Request):
         <main class="main-content">
             <div class="auth-container">
                 <h2>Welcome Back</h2>
-                <p class="subtitle">Login to your zedmatch account</p>
+                <p class="subtitle">Login to your zedconnect account</p>
                 <form action="/auth/login" method="post" class="auth-form">
                     <input type="hidden" name="csrf_token" value="{csrf_token}">
                     <div class="form-group">
@@ -328,7 +328,7 @@ async def login_page(request: Request):
             </div>
         </main>
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -381,13 +381,13 @@ async def terms_page(request: Request):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Terms & Conditions</title>
+        <title>zedconnect - Terms & Conditions</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/auth/login">Login</a></li>
@@ -399,16 +399,16 @@ async def terms_page(request: Request):
         <main class="main-content">
             <div class="auth-container">
                 <h2>Terms & Conditions</h2>
-                <p class="subtitle">Please read our terms carefully before using zedmatch</p>
+                <p class="subtitle">Please read our terms carefully before using zedconnect</p>
                 
                 <div class="terms-content">
                     <div class="terms-section" id="terms">
                         <h3><span class="terms-date">Effective Date: July 5, 2025</span></h3>
                         
                         <h4>1. Terms of Service</h4>
-                        <p>Welcome to zedmatch! By accessing or using our platform, you agree to these Terms of Service.</p>
+                        <p>Welcome to zedconnect! By accessing or using our platform, you agree to these Terms of Service.</p>
                         <ul>
-                            <li>You must be at least 18 years old to use zedmatch.</li>
+                            <li>You must be at least 18 years old to use zedconnect.</li>
                             <li>You agree to provide accurate information when creating your account.</li>
                         </ul>
                         
@@ -428,17 +428,17 @@ async def terms_page(request: Request):
                         <h4>4. Content Ownership</h4>
                         <ul>
                             <li>You retain ownership of the content you post.</li>
-                            <li>By posting, you grant zedmatch a license to display and distribute your content within the platform.</li>
+                            <li>By posting, you grant zedconnect a license to display and distribute your content within the platform.</li>
                         </ul>
                         
                         <h4>5. Termination</h4>
                         <ul>
-                            <li>zedmatch reserves the right to suspend or terminate accounts that violate these terms.</li>
+                            <li>zedconnect reserves the right to suspend or terminate accounts that violate these terms.</li>
                         </ul>
                         
                         <h4>6. Limitation of Liability</h4>
                         <ul>
-                            <li>zedmatch is not responsible for offline interactions between users.</li>
+                            <li>zedconnect is not responsible for offline interactions between users.</li>
                             <li>We provide the platform "as is" without warranties.</li>
                         </ul>
                         
@@ -488,7 +488,7 @@ async def terms_page(request: Request):
                     <div class="terms-section" id="cookie">
                         <h3>Cookie Policy</h3>
                         <p><span class="terms-date">Effective Date: July 5, 2025</span></p>
-                        <p>zedmatch uses cookies and similar technologies to:</p>
+                        <p>zedconnect uses cookies and similar technologies to:</p>
                         <ul>
                             <li>Remember your preferences.</li>
                             <li>Analyze site traffic and usage.</li>
@@ -541,7 +541,7 @@ async def terms_page(request: Request):
                         
                         <h4>3. Moderation</h4>
                         <ul>
-                            <li>zedmatch monitors activity for suspicious behavior.</li>
+                            <li>zedconnect monitors activity for suspicious behavior.</li>
                             <li>Accounts may be suspended for safety concerns.</li>
                         </ul>
                     </div>
@@ -552,7 +552,7 @@ async def terms_page(request: Request):
                         
                         <h4>1. Subscription Plans</h4>
                         <ul>
-                            <li>zedmatch offers free and premium membership options.</li>
+                            <li>zedconnect offers free and premium membership options.</li>
                             <li>Premium features may include advanced search, unlimited messaging, and profile boosts.</li>
                         </ul>
                         
@@ -580,7 +580,7 @@ async def terms_page(request: Request):
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -618,13 +618,13 @@ async def verify_email(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Email Verified</title>
+        <title>zedconnect - Email Verified</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
             </div>
         </nav>
         <main class="main-content">
@@ -649,13 +649,13 @@ async def forgot_password_page(request: Request):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Forgot Password</title>
+        <title>zedconnect - Forgot Password</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/auth/login">Login</a></li>
@@ -679,7 +679,7 @@ async def forgot_password_page(request: Request):
             </div>
         </main>
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
         </footer>
     </body>
     </html>
@@ -710,13 +710,13 @@ async def forgot_password(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Password Reset Sent</title>
+        <title>zedconnect - Password Reset Sent</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
             </div>
         </nav>
         <main class="main-content">
@@ -753,13 +753,13 @@ async def reset_password_page(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Reset Password</title>
+        <title>zedconnect - Reset Password</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
             </div>
         </nav>
         <main class="main-content">
@@ -781,7 +781,7 @@ async def reset_password_page(
             </div>
         </main>
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
         </footer>
     </body>
     </html>
@@ -825,13 +825,13 @@ async def reset_password(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Password Reset Successful</title>
+        <title>zedconnect - Password Reset Successful</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
             </div>
         </nav>
         <main class="main-content">

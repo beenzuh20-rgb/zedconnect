@@ -1,4 +1,4 @@
-# PostgreSQL Setup Guide for zedmatch
+# PostgreSQL Setup Guide for zedconnect
 
 This guide will help you switch from SQLite to PostgreSQL for production use.
 
@@ -27,16 +27,16 @@ This guide will help you switch from SQLite to PostgreSQL for production use.
    psql -U postgres
    
    -- Create database
-   CREATE DATABASE zedmatch;
+   CREATE DATABASE zedconnect;
    
    -- Create user (optional)
-   CREATE USER zedmatch_user WITH PASSWORD 'your_password';
-   GRANT ALL PRIVILEGES ON DATABASE zedmatch TO zedmatch_user;
+   CREATE USER zedconnect_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE zedconnect TO zedconnect_user;
    ```
 
 2. **Update .env file**
    ```env
-   DATABASE_URL=postgresql://postgres:your_password@localhost/zedmatch
+   DATABASE_URL=postgresql://postgres:your_password@localhost/zedconnect
    ```
 
 ### Option 2: Cloud PostgreSQL (Supabase/Neon)
@@ -69,17 +69,17 @@ postgresql://[username[:password]@][host[:port]][/database][?parameter=value]
 
 - **Local with password:**
   ```
-  postgresql://postgres:mypassword@localhost/zedmatch
+  postgresql://postgres:mypassword@localhost/zedconnect
   ```
 
 - **Local without password (trust authentication):**
   ```
-  postgresql://postgres@localhost/zedmatch
+  postgresql://postgres@localhost/zedconnect
   ```
 
 - **Cloud with SSL:**
   ```
-  postgresql://user:pass@aws.connect.psdb.cloud/zedmatch?sslmode=require
+  postgresql://user:pass@aws.connect.psdb.cloud/zedconnect?sslmode=require
   ```
 
 ## Troubleshooting
@@ -100,9 +100,9 @@ postgresql://[username[:password]@][host[:port]][/database][?parameter=value]
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `sqlite:///./zedmatch.db` |
+| `DATABASE_URL` | PostgreSQL connection string | `sqlite:///./zedconnect.db` |
 | `SECRET_KEY` | JWT secret key (32+ chars) | `your-secret-key-change-in-production-min-32-chars!` |
-| `APP_NAME` | Application name | `zedmatch` |
+| `APP_NAME` | Application name | `zedconnect` |
 | `APP_VERSION` | Application version | `1.0.0` |
 
 ## Notes

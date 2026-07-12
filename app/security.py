@@ -1,5 +1,5 @@
 """
-Security utilities for zedmatch
+Security utilities for zedconnect
 Token blacklisting, password validation, input sanitization, rate limiting setup
 """
 

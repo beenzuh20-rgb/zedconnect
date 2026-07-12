@@ -1,10 +1,10 @@
 """
-Run script for zedmatch
+Run script for zedconnect
 Start the FastAPI development server
 
 For PostgreSQL, set the DATABASE_URL environment variable:
-    Windows: set DATABASE_URL=postgresql://user:password@localhost/zedmatch
-    Linux/Mac: export DATABASE_URL=postgresql://user:password@localhost/zedmatch
+    Windows: set DATABASE_URL=postgresql://user:password@localhost/zedconnect
+    Linux/Mac: export DATABASE_URL=postgresql://user:password@localhost/zedconnect
 
 For HTTPS, set the SSL_CERTFILE and SSL_KEYFILE environment variables:
     Windows: set SSL_CERTFILE=path/to/cert.pem && set SSL_KEYFILE=path/to/key.pem

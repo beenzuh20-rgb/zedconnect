@@ -1,5 +1,5 @@
 """
-WebRTC Signaling Server for zedmatch
+WebRTC Signaling Server for zedconnect
 Handles WebSocket connections for video/audio call signaling
 """
 

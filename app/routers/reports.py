@@ -1,5 +1,5 @@
 """
-Reports router for zedmatch
+Reports router for zedconnect
 Handles user reporting functionality
 """
 
@@ -75,13 +75,13 @@ async def report_user_page(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Report User</title>
+        <title>zedconnect - Report User</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -128,14 +128,14 @@ async def report_user_page(
                         <li>Reports are reviewed by our moderation team within 24-48 hours.</li>
                         <li>False or malicious reporting may result in action against your account.</li>
                         <li>If you feel you are in immediate danger, please contact local authorities.</li>
-                        <li>For urgent safety concerns, please email safety@zedmatch.com</li>
+                        <li>For urgent safety concerns, please email safety@zedconnect.com</li>
                     </ul>
                 </div>
             </div>
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -204,13 +204,13 @@ async def report_success(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Report Submitted</title>
+        <title>zedconnect - Report Submitted</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -227,7 +227,7 @@ async def report_success(
                 <div class="success-card">
                     <div class="success-icon">✅</div>
                     <h2>Report Submitted</h2>
-                    <p>Thank you for helping keep zedmatch safe!</p>
+                    <p>Thank you for helping keep zedconnect safe!</p>
                     <p>Our moderation team will review your report within 24-48 hours.</p>
                     <div class="success-actions">
                         <a href="/matches/browse" class="btn btn-primary">Back to Browse</a>
@@ -238,7 +238,7 @@ async def report_success(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

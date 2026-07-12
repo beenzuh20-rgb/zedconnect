@@ -1,5 +1,5 @@
 """
-zedmatch - A Zambia-focused Dating App
+zedconnect - A Zambia-focused Dating App
 Main application entry point
 """
 
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="zedmatch",
+    title="zedconnect",
     description="A Zambia-focused dating application",
     version="1.0.0",
     lifespan=lifespan
@@ -101,13 +101,13 @@ async def home(request: Request, db: Session = Depends(get_db)):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Home</title>
+        <title>zedconnect - Home</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body style="display: flex; flex-direction: column; min-height: 100vh;">
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -133,7 +133,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         
         <main class="main-content">
             <div class="hero">
-                <h1>Welcome to zedmatch ❤️</h1>
+                <h1>Welcome to zedconnect ❤️</h1>
                 <p class="tagline">Connecting hearts across Zambia - from Lusaka to Copperbelt and beyond!</p>
                 
                 <div class="hero-buttons">
@@ -144,7 +144,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

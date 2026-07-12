@@ -1,4 +1,4 @@
-# zedmatch - A Zambia-focused Dating App
+# zedconnect - A Zambia-focused Dating App
 
 A simple, mobile-friendly dating web application built with FastAPI, SQLAlchemy, and PostgreSQL (Neon).
 
@@ -15,7 +15,7 @@ A simple, mobile-friendly dating web application built with FastAPI, SQLAlchemy,
 ## Project Structure
 
 ```
-zedmatch/
+zedconnect/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py              # Main application entry point
@@ -61,8 +61,8 @@ zedmatch/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/beenzuh20-rgb/zedmatch.git
-cd zedmatch
+git clone https://github.com/beenzuh20-rgb/zedconnect.git
+cd zedconnect
 ```
 
 2. Install dependencies:

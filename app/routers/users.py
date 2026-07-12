@@ -1,5 +1,5 @@
 """
-Users router for zedmatch
+Users router for zedconnect
 Handles user profile viewing and editing
 """
 
@@ -82,7 +82,7 @@ def save_profile_picture(file: UploadFile, user_id: int) -> str:
         result = cloudinary.uploader.upload(
             upload_file_bytes,
             public_id=public_id,
-            folder="zedmatch_profile_pics",
+            folder="zedconnect_profile_pics",
             overwrite=True,
             resource_type="image",
             transformation=[
@@ -130,13 +130,13 @@ async def profile_page(
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>zedmatch - My Profile</title>
+        <title>zedconnect - My Profile</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -225,7 +225,7 @@ async def profile_page(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -281,13 +281,13 @@ async def view_user_profile(
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>zedmatch - {safe_name or 'User Profile'}</title>
+        <title>zedconnect - {safe_name or 'User Profile'}</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -326,7 +326,7 @@ async def view_user_profile(
         </main>
         
                 <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

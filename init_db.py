@@ -1,5 +1,5 @@
 """
-Database initialization script for zedmatch
+Database initialization script for zedconnect
 Creates all tables in PostgreSQL database
 """
 

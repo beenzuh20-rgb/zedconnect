@@ -1,5 +1,5 @@
 """
-Database models for zedmatch
+Database models for zedconnect
 User, Match, and Message models
 """
 

@@ -1,5 +1,5 @@
 """
-Chat router for zedmatch
+Chat router for zedconnect
 Handles messaging between matched users with voice notes, photo sharing, read receipts, and blocking
 """
 
@@ -149,14 +149,14 @@ async def chat_list(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Messages</title>
+        <title>zedconnect - Messages</title>
         <link rel="stylesheet" href="/static/css/style.css">
         <script src="/static/js/webrtc.js"></script>
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -179,7 +179,7 @@ async def chat_list(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -299,14 +299,14 @@ async def chat_with_user(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Chat with {other_user.full_name or 'User'}</title>
+        <title>zedconnect - Chat with {other_user.full_name or 'User'}</title>
         <link rel="stylesheet" href="/static/css/style.css">
         <script src="/static/js/webrtc.js"></script>
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -358,7 +358,7 @@ async def chat_with_user(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -688,13 +688,13 @@ async def blocked_users(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>zedmatch - Blocked Users</title>
+        <title>zedconnect - Blocked Users</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">zedmatch</a>
+                <a href="/" class="logo">zedconnect</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -718,7 +718,7 @@ async def blocked_users(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedconnect - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

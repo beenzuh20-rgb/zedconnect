@@ -1,5 +1,5 @@
 """
-Configuration settings for zedmatch
+Configuration settings for zedconnect
 JWT and other app settings
 """
 
@@ -22,7 +22,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15")
 REFRESH_TOKEN_EXPIRE_MINUTES = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", "10080"))  # 7 days for refresh
 
 # App settings
-APP_NAME = "zedmatch"
+APP_NAME = "zedconnect"
 APP_VERSION = "1.0.0"
 DEBUG = os.getenv("DEBUG", "").lower() in ("true", "1", "yes")
 

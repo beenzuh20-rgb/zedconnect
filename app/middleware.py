@@ -1,5 +1,5 @@
 """
-Middleware configuration for zedmatch
+Middleware configuration for zedconnect
 CORS, CSRF protection, security headers, rate limiting, and request size limits
 """
 
