@@ -1,5 +1,6 @@
 cloudinary>=1.40.0
 fastapi>=0.100.0
+slowapi>=0.1.9
 websockets>=10.0
 uvicorn>=0.22.0
 sqlalchemy>=2.0.0

@@ -1,20 +1,31 @@
 """
-ZedMatch - A Zambia-focused Dating App
+zedmatch - A Zambia-focused Dating App
 Main application entry point
 """
 
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, FileResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from app.database import get_db, init_db
-from app import models
+from app import models, config
 from app.routers import auth, users, matches, chat, reports
 from app.middleware import add_middlewares
 from app.webrtc_signaling import signaling_websocket
+
+
+# Rate limiter setup
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=[config.RATE_LIMIT_GENERAL],
+    enabled=True
+)
 
 
 @asynccontextmanager
@@ -23,13 +34,17 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="ZedMatch",
+    title="zedmatch",
     description="A Zambia-focused dating application",
     version="1.0.0",
     lifespan=lifespan
 )
 
-# Add CORS and other middlewares
+# Add rate limiter exception handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Add CORS and other middlewares (security headers, CSRF, request size limits)
 add_middlewares(app)
 
 # Mount static files for CSS and images
@@ -77,19 +92,22 @@ async def home(request: Request, db: Session = Depends(get_db)):
         new_matches_count = 0
         unread_messages_count = 0
 
+    from app.security import sanitize_html
+    safe_user_name = sanitize_html(current_user.full_name) if current_user else ""
+
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedMatch - Home</title>
+        <title>zedmatch - Home</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body style="display: flex; flex-direction: column; min-height: 100vh;">
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedMatch</a>
+                <a href="/" class="logo">zedmatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -115,7 +133,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         
         <main class="main-content">
             <div class="hero">
-                <h1>Welcome to ZedMatch ❤️</h1>
+                <h1>Welcome to zedmatch ❤️</h1>
                 <p class="tagline">Connecting hearts across Zambia - from Lusaka to Copperbelt and beyond!</p>
                 
                 <div class="hero-buttons">
@@ -126,7 +144,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -142,8 +160,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
     return HTMLResponse(content=html_content)
 
 
-# Favicon - serve actual file instead of 204
-from fastapi.responses import FileResponse
+# Favicon
 @app.get("/favicon.ico")
 async def favicon():
     return FileResponse("app/static/favicon.ico")

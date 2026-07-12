@@ -1,5 +1,5 @@
 """
-User schema for ZedMatch
+User schema for zedmatch
 Pydantic models for user data validation
 """
 

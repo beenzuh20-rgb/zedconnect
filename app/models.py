@@ -1,5 +1,5 @@
 """
-Database models for ZedMatch
+Database models for zedmatch
 User, Match, and Message models
 """
 
@@ -129,6 +129,19 @@ class Notification(Base):
 
     # Relationships
     user = relationship("User")
+
+
+class TokenBlacklist(Base):
+    """
+    Token blacklist model for JWT token revocation
+    Stores tokens that have been invalidated (e.g., on logout)
+    """
+    __tablename__ = "token_blacklist"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token_jti = Column(String, unique=True, index=True, nullable=False)  # JWT ID (jti claim)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Report(Base):

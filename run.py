@@ -1,5 +1,5 @@
 """
-Run script for ZedMatch
+Run script for zedmatch
 Start the FastAPI development server
 
 For PostgreSQL, set the DATABASE_URL environment variable:

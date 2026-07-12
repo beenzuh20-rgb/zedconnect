@@ -1,5 +1,5 @@
 """
-Users router for ZedMatch
+Users router for zedmatch
 Handles user profile viewing and editing
 """
 
@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app import models, config
 from app.database import get_db
 from app.routers.auth import get_current_user
+from app.security import sanitize_html
 from PIL import Image
 
 import cloudinary
@@ -81,7 +82,7 @@ def save_profile_picture(file: UploadFile, user_id: int) -> str:
         result = cloudinary.uploader.upload(
             upload_file_bytes,
             public_id=public_id,
-            folder="zedconnect_profile_pics",
+            folder="zedmatch_profile_pics",
             overwrite=True,
             resource_type="image",
             transformation=[
@@ -120,17 +121,22 @@ async def profile_page(
     provinces = models.ZAMBIA_PROVINCES
     csrf_token = request.cookies.get("csrf_token", "")
     new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
+    safe_name = sanitize_html(current_user.full_name)
+    safe_bio = sanitize_html(current_user.bio)
+    safe_location = sanitize_html(current_user.location)
+    safe_interests = sanitize_html(current_user.interests)
+    safe_goals = sanitize_html(current_user.relationship_goals)
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>ZedMatch - My Profile</title>
+        <title>zedmatch - My Profile</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedMatch</a>
+                <a href="/" class="logo">zedmatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -159,7 +165,7 @@ async def profile_page(
                         
                         <div class="form-group">
                             <label for="full_name">Full Name</label>
-                            <input type="text" id="full_name" name="full_name" value="{current_user.full_name or ''}">
+                            <input type="text" id="full_name" name="full_name" value="{safe_name}">
                         </div>
                         
                         <div class="form-row">
@@ -189,7 +195,7 @@ async def profile_page(
                         
 <div class="form-group">
                             <label for="bio">Bio</label>
-                            <textarea id="bio" name="bio" rows="4">{current_user.bio or ''}</textarea>
+                            <textarea id="bio" name="bio" rows="4">{safe_bio}</textarea>
                         </div>
                         
                         <div class="form-group">
@@ -219,7 +225,7 @@ async def profile_page(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -264,17 +270,24 @@ async def view_user_profile(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     new_matches_count, unread_messages_count = get_nav_notifications(db, current_user)
+    safe_name = sanitize_html(user.full_name)
+    safe_bio = sanitize_html(user.bio)
+    safe_location = sanitize_html(user.location)
+    safe_interests = sanitize_html(user.interests)
+    safe_goals = sanitize_html(user.relationship_goals)
+    safe_age = sanitize_html(str(user.age)) if user.age else 'N/A'
+    safe_gender = sanitize_html(user.gender) if user.gender else 'Not specified'
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>ZedMatch - {user.full_name or 'User Profile'}</title>
+        <title>zedmatch - {safe_name or 'User Profile'}</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedMatch</a>
+                <a href="/" class="logo">zedmatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -288,17 +301,17 @@ async def view_user_profile(
         
         <main class="main-content">
             <div class="profile-container">
-                <h2>{user.full_name or 'Anonymous'}</h2>
+                <h2>{safe_name or 'Anonymous'}</h2>
                 
                 <div class="profile-card">
                     <img src="{user.profile_picture_url or '/static/default_profile.png'}" alt="Profile Picture" class="profile-pic-large">
                     
 <div class="user-info">
-                        <p class="age-gender">{user.age or 'N/A'} years old • {user.gender or 'Not specified'}</p>
-                        <p class="location">📍 {user.location or 'Zambia'}</p>
-                        <p class="bio">{user.bio or 'No bio yet'}</p>
-                        {f'<p class="interests" style="margin-top: 0.5rem;"><strong>Interests:</strong> {user.interests}</p>' if user.interests else ''}
-                        {f'<p class="goals" style="margin-top: 0.3rem;"><strong>Looking for:</strong> {user.relationship_goals.title() if user.relationship_goals else 'Not specified'}</p>' if user.relationship_goals else ''}
+                        <p class="age-gender">{safe_age} years old • {safe_gender}</p>
+                        <p class="location">📍 {safe_location or 'Zambia'}</p>
+                        <p class="bio">{safe_bio or 'No bio yet'}</p>
+                        {f'<p class="interests" style="margin-top: 0.5rem;"><strong>Interests:</strong> {safe_interests}</p>' if safe_interests else ''}
+                        {f'<p class="goals" style="margin-top: 0.3rem;"><strong>Looking for:</strong> {safe_goals}</p>' if safe_goals else ''}
                     </div>
                     
                     <div class="user-actions" style="margin-top: 2rem;">
@@ -313,7 +326,7 @@ async def view_user_profile(
         </main>
         
                 <footer class="footer">
-            <p>&copy; 2024 ZedMatch - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

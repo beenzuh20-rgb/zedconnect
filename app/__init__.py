@@ -1,4 +1,4 @@
 """
-ZedMatch - A Zambia-focused Dating App
+zedmatch - A Zambia-focused Dating App
 """
 from app.main import app

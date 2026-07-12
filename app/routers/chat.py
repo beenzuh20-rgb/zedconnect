@@ -1,18 +1,21 @@
 """
-Chat router for ZedMatch
+Chat router for zedmatch
 Handles messaging between matched users with voice notes, photo sharing, read receipts, and blocking
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
-from app import models
+from app import models, config
 from app.database import get_db
 from app.routers.auth import get_current_user
+from app.security import sanitize_html
 import os
 import uuid
+import io
 from datetime import datetime
 from pathlib import Path
+from PIL import Image
 
 # Create router
 router = APIRouter(
@@ -146,14 +149,14 @@ async def chat_list(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - Messages</title>
+        <title>zedmatch - Messages</title>
         <link rel="stylesheet" href="/static/css/style.css">
         <script src="/static/js/webrtc.js"></script>
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">zedmatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -176,7 +179,7 @@ async def chat_list(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -296,14 +299,14 @@ async def chat_with_user(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - Chat with {other_user.full_name or 'User'}</title>
+        <title>zedmatch - Chat with {other_user.full_name or 'User'}</title>
         <link rel="stylesheet" href="/static/css/style.css">
         <script src="/static/js/webrtc.js"></script>
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">zedmatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -355,7 +358,7 @@ async def chat_with_user(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>
@@ -497,15 +500,26 @@ async def send_message(
     if 'voice' in form:
         voice_file = form['voice']
         if voice_file:
+            # Read file content for validation
+            file_bytes = await voice_file.read()
+            file_size = len(file_bytes)
+            
+            # Validate audio file
+            if file_size > config.MAX_CHAT_FILE_SIZE:
+                raise HTTPException(status_code=400, detail="Voice note too large. Max size: 10MB")
+            
+            # Check MIME type via filename extension for voice files
+            voice_filename = getattr(voice_file, 'filename', 'voice.webm') or 'voice.webm'
+            voice_ext = os.path.splitext(voice_filename)[1].lower()
+            if voice_ext not in config.ALLOWED_CHAT_EXTENSIONS:
+                raise HTTPException(status_code=400, detail="Invalid voice file format")
+            
             # Save voice file
-            file_ext = '.webm'
-            file_name = f"voice_{uuid.uuid4()}{file_ext}"
+            file_name = f"voice_{uuid.uuid4()}.webm"
             file_path = MEDIA_DIR / file_name
             
-            # Read and save the file
-            content = await voice_file.read()
             with open(file_path, 'wb') as f:
-                f.write(content)
+                f.write(file_bytes)
             
             # Get duration from form or estimate
             duration = int(form.get('duration', 0))
@@ -524,16 +538,39 @@ async def send_message(
     # Handle photo
     if 'photo' in form:
         photo_file = form['photo']
-        if photo_file and photo_file.filename:
+        if photo_file and getattr(photo_file, 'filename', None):
+            # Read file content
+            file_bytes = await photo_file.read()
+            file_size = len(file_bytes)
+            
+            # Check file size
+            if file_size > config.MAX_CHAT_FILE_SIZE:
+                raise HTTPException(status_code=400, detail="Photo too large. Max size: 10MB")
+            
+            # Check extension
+            photo_filename = photo_file.filename or ''
+            photo_ext = os.path.splitext(photo_filename)[1].lower()
+            if photo_ext not in config.ALLOWED_CHAT_EXTENSIONS:
+                raise HTTPException(status_code=400, detail="Invalid photo format. Allowed: jpg, jpeg, png, gif, webp")
+            
+            # Validate that it's actually an image using PIL
+            try:
+                image = Image.open(io.BytesIO(file_bytes))
+                image.verify()  # Verify it's a valid image
+                # Re-open after verify (verify can corrupt the file pointer)
+                image = Image.open(io.BytesIO(file_bytes))
+                # Ensure dimensions are reasonable (max 4096px)
+                if image.width > 4096 or image.height > 4096:
+                    raise HTTPException(status_code=400, detail="Image dimensions too large. Max: 4096x4096")
+            except Exception:
+                raise HTTPException(status_code=400, detail="Uploaded file is not a valid image")
+            
             # Save photo file
-            file_ext = os.path.splitext(photo_file.filename)[1] or '.jpg'
-            file_name = f"photo_{uuid.uuid4()}{file_ext}"
+            file_name = f"photo_{uuid.uuid4()}{photo_ext if photo_ext else '.jpg'}"
             file_path = MEDIA_DIR / file_name
             
-            # Read and save the file
-            content = await photo_file.read()
             with open(file_path, 'wb') as f:
-                f.write(content)
+                f.write(file_bytes)
             
             new_message = models.Message(
                 sender_id=current_user.id,
@@ -545,9 +582,11 @@ async def send_message(
             db.commit()
             return RedirectResponse(url=f"/chat/with/{user_id}", status_code=status.HTTP_303_SEE_OTHER)
     
-    # Handle text message
+    # Handle text message - sanitize to prevent XSS
     content = form.get('content', '').strip()
     if content:
+        if len(content) > config.MAX_CONTENT_LENGTH:
+            raise HTTPException(status_code=400, detail=f"Message too long. Max {config.MAX_CONTENT_LENGTH} characters")
         new_message = models.Message(
             sender_id=current_user.id,
             receiver_id=user_id,
@@ -649,13 +688,13 @@ async def blocked_users(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ZedConnect - Blocked Users</title>
+        <title>zedmatch - Blocked Users</title>
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
     <body>
         <nav class="navbar">
             <div class="nav-container">
-                <a href="/" class="logo">ZedConnect</a>
+                <a href="/" class="logo">zedmatch</a>
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/matches/browse">Browse</a></li>
@@ -679,7 +718,7 @@ async def blocked_users(
         </main>
         
         <footer class="footer">
-            <p>&copy; 2024 ZedConnect - Connecting hearts in Zambia</p>
+            <p>&copy; 2024 zedmatch - Connecting hearts in Zambia</p>
             <div class="footer-links">
                 <a href="/auth/terms">Terms & Conditions</a>
                 <a href="/auth/terms#privacy">Privacy Policy</a>

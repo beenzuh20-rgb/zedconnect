@@ -1,5 +1,5 @@
 """
-Database fix script for ZedMatch
+Database fix script for zedmatch
 Adds missing columns to messages table
 Run this with: python fix_db.py
 """

@@ -1,5 +1,5 @@
 """
-Content moderation and fake account detection for ZedMatch
+Content moderation and fake account detection for zedmatch
 """
 
 import re
